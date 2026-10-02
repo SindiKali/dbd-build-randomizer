@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DbD Build Randomizer</title>
+    <style>
+        body {
+            background-color: #0d0d0d;
+            color: #e0e0e0;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            margin: 0;
+            padding: 40px 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            min-height: 100vh;
+        }
+        h1 {
+            color: #b30000;
+            text-transform: uppercase;
+            letter-spacing: 3px;
+            margin-bottom: 5px;
+            text-shadow: 2px 2px 6px rgba(0,0,0,0.9);
+        }
+        p.subtitle {
+            color: #777;
+            margin-bottom: 40px;
+            letter-spacing: 1px;
+        }
+        .buttons {
+            display: flex;
+            gap: 20px;
+            margin-bottom: 40px;
+        }
+        button {
+            background-color: #161616;
+            color: #fff;
+            border: 2px solid #8b0000;
+            padding: 14px 28px;
+            font-size: 16px;
+            font-weight: bold;
+            cursor: pointer;
+            border-radius: 4px;
+            transition: all 0.3s ease;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+        button:hover {
+            background-color: #8b0000;
+            box-shadow: 0 0 15px rgba(139, 0, 0, 0.7);
+            transform: translateY(-2px);
+        }
+        .role-title {
+            text-transform: uppercase;
+            font-size: 18px;
+            letter-spacing: 2px;
+            color: #ff4d4d;
+            margin-bottom: 25px;
+            font-weight: bold;
+        }
+        .container {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+            gap: 20px;
+            width: 100%;
+            max-width: 1000px;
+        }
+        .card {
+            background-color: #141414;
+            border: 1px solid #222;
+            border-left: 5px solid #8b0000;
+            border-radius: 4px;
+            padding: 20px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.6);
+            transition: transform 0.2s, border-color 0.2s;
+        }
+        .card:hover {
+            transform: translateY(-4px);
+            border-color: #8b0000;
+        }
+        .card h3 {
+            margin-top: 0;
+            color: #ff6666;
+            font-size: 17px;
+        }
+        .card p {
+            color: #aaa;
+            font-size: 13px;
+            line-height: 1.5;
+            margin-bottom: 0;
+        }
+    </style>
+</head>
+<body>
+
+    <h1>Dead by Daylight</h1>
+    <p class="subtitle">Randomizador de Builds</p>
+
+    <div class="buttons">
+        <button onclick="fetchBuild('survivor')">Sobrevivente</button>
+        <button onclick="fetchBuild('killer')">Assassino</button>
+    </div>
+
+    <!-- Ajustando o botão do assassino corretamente -->
+    <script>
+        // Correção rápida do botão do assassino para ficar limpo
+        document.querySelector('.buttons').innerHTML = `
+            <button onclick="fetchBuild('survivor')">Sobrevivente</button>
+            <button onclick="fetchBuild('killer')">Assassino</button>
+        `;
+    </script>
+
+    <div id="role-display" class="role-title"></div>
+    <div id="build-container" class="container"></div>
+
+    <script>
+        async function fetchBuild(role) {
+            try {
+                const response = await fetch(`http://127.0.0.1:8000/randomize/${role}`);
+                if (!response.ok) {
+                    throw new Error('Erro ao buscar build');
+                }
+                const data = await response.json();
+                
+                document.getElementById('role-display').innerText = `Build de ${role === 'survivor' ? 'Sobrevivente' : 'Assassino'}`;
+                
+                const container = document.getElementById('build-container');
+                container.innerHTML = '';
+
+                data.build.forEach(perk => {
+                    const card = document.createElement('div');
+                    card.className = 'card';
+                    card.innerHTML = `
+                        <h3>${perk.name}</h3>
+                        <p>${perk.description}</p>
+                    `;
+                    container.appendChild(card);
+                });
+            } catch (error) {
+                alert('Erro ao conectar com a API. Certifica-te de que o uvicorn está a correr no terminal.');
+                console.error(error);
+            }
+        }
+    </script>
+</body>
+</html>
